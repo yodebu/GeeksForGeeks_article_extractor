@@ -12,9 +12,9 @@ from bs4 import BeautifulSoup
 import urllib2
 import os
 
-AllTags = ['interview-experience','advance-data-structures','dynamic-programming','Greedy-Algorithm','backtracking','pattern-searching','divide-and-conquer','graph','MathematicalAlgo','recursion','Java']
+AllTags = ['payu']
 
-path = "/home/yodebu/Desktop/GeeksForGeeks_article_extractor//"      # Specify your path here
+path = "/home/yodebu/Desktop/GeeksForGeeks_article_extractor/"      # Specify your path here
 
 
 
@@ -38,7 +38,7 @@ def Extract_And_Save_Page_Data(listofLinks,newpath,i):
 	No = 0
 	for item in listofLinks:
 		pageData = urllib2.urlopen(item).read()
-		filePath = newpath +"\\" +str(i)+" "+str(No+1)+".html"
+		filePath = newpath +"//" +str(i)+" "+str(No+1)+".html"
 		No = No +1
 		with open(filePath,"wb") as f:
 			f.write(str(pageData))
