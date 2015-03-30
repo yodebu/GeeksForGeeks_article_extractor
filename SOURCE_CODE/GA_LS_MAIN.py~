@@ -1,0 +1,396 @@
+#!/usr/bin/env python
+
+''' 
+this program produces a genetic algorithm based framework to produce a tree having minimum least square value
+input is a distance matrix
+output is a tree of minimum least square estimate
+
+Author: Sourya Bhattacharyya
+Dept of CSE, IIT Kharagpur
+V1.0 - 06.02.2014 - basic implementation
+''' 
+
+''' this is the main executable of the package '''
+
+import Header
+from Header import *
+
+import Tree_Generate
+from Tree_Generate import *
+
+import Tree_Mutate
+from Tree_Mutate import *
+
+import UtilFunc
+from UtilFunc import *
+
+import Selection
+from Selection import *
+
+import Tree_Recombination
+from Tree_Recombination import *
+
+import TreeUtilFunc
+from TreeUtilFunc import *  
+
+import Population
+from Population import *
+  
+##-----------------------------------------------------
+# this function is useful to parse various options for input data processing
+def parse_options():
+  usage = "usage: prog [options] (arg1, arg2, ... argn)"
+  parser = OptionParser(usage=usage)
+  
+  parser.add_option("-i", "--input", \
+		      type="string", \
+		      action="store", \
+		      dest="inp_filename", \
+		      default = "", \
+		      help="input filename containing real dataset (aligned seq)")
+  
+  parser.add_option("-p", "--popsize", \
+		      type="int", action="store", \
+		      dest="population_size", \
+		      default=100, \
+		      help="integer parameter specifying the population size \
+		      default value is 100")  
+
+  parser.add_option("-g", "--generation", \
+		      type="int", action="store", \
+		      dest="no_of_generations", \
+		      default=150, \
+		      help="integer parameter specifying the number of generations to be experimented \
+		      default value is 150")  
+
+  #parser.add_option("-m", "--murate", \
+		      #type="float", action="store", \
+		      #dest="mutation_rate", \
+		      #default=0.5, \
+		      #help="float parameter specifying the mutation rate (initial) \
+		      #default value is 0.5")  
+
+  #parser.add_option("-c", "--crrate", \
+		      #type="float", action="store", \
+		      #dest="crossover_rate", \
+		      #default=0.5, \
+		      #help="float parameter specifying the crossover (recombination) rate (initial) \
+		      #default value is 0.5")  
+		      
+  parser.add_option("-s", "--select", \
+		      type="int", action="store", \
+		      dest="selection", \
+		      default=2, \
+		      help="0 = tournament selection, \
+		      1 = ranking selection, \
+		      2 = ranking selection with elitism (default)")  
+		      
+  parser.add_option("-f", "--fract_pop", \
+		      type="float", action="store", \
+		      dest="fraction_prev_gen_retain", \
+		      default=0.5, \
+		      help="float parameter depicting the fraction of samples from previous generation that will be used in the next generation. \
+		      as example, if population size is 100, and this parameter is 0.5 (default) \
+		      then 50 samples from this generation will be propagated to the next generation. \
+		      depending upon the selection scheme, best performing candidates will be chosen")  
+
+  parser.add_option("-e", "--el_cnt", \
+		      type="int", action="store", \
+		      dest="elitism_count", \
+		      default=1, \
+		      help="integer parameter applicable if the -s (selection) option is set for elitism only \
+		      signifying the number of best performing candidates that will be retained in the next generation \
+		      default value is 1, means only the best performing candidate will be surely retained")  
+		      
+  opts, args = parser.parse_args()
+  return opts, args
+
+##-----------------------------------------------------
+# main function
+def main():  
+  # parse the input parameters
+  opts, args = parse_options()
+  INPUT_FILENAME_DIST_MAT = opts.inp_filename
+  POPULATION_SIZE = opts.population_size
+  NO_OF_GENERATIONS = opts.no_of_generations
+  #MUTATION_RATE = opts.mutation_rate
+  #CROSSOVER_RATE = opts.crossover_rate
+  SELECTION_SCHEME = opts.selection
+  FRACTION_PREV_GENERATION_RETAIN = opts.fraction_prev_gen_retain
+  ELITISM_COUNT = opts.elitism_count
+    
+  # according to the location of input filename
+  # adjust the locations of the output files as well
+  k = INPUT_FILENAME_DIST_MAT.rfind("/")
+  dir_of_inp_file = INPUT_FILENAME_DIST_MAT[:(k+1)]
+  if (DEBUG_LEVEL > 2):
+    print 'dir_of_inp_file: ', dir_of_inp_file
+    
+  """ this is the directory for this particular execution
+  to be created under each individual dataset """
+  if (SELECTION_SCHEME == 2):
+    dir_of_curr_exec = dir_of_inp_file + 'Population_' + str(POPULATION_SIZE) + '_Generations_' + str(NO_OF_GENERATIONS) + \
+			'_Ranking_Selection_Elitism_Count_' + str(ELITISM_COUNT) + \
+			'_Fraction_Prev_Gen_' + str(FRACTION_PREV_GENERATION_RETAIN)
+  elif (SELECTION_SCHEME == 1):
+    dir_of_curr_exec = dir_of_inp_file + 'Population_' + str(POPULATION_SIZE) + '_Generations_' + str(NO_OF_GENERATIONS) + \
+			'_Ranking_Selection_No_Elitism' + \
+			'_Fraction_Prev_Gen_' + str(FRACTION_PREV_GENERATION_RETAIN)
+  else:
+    dir_of_curr_exec = dir_of_inp_file + 'Population_' + str(POPULATION_SIZE) + '_Generations_' + str(NO_OF_GENERATIONS) + \
+			'_Tournament_Selection_No_Elitism' + \
+			'_Fraction_Prev_Gen_' + str(FRACTION_PREV_GENERATION_RETAIN)
+    
+  # create the directory
+  if (os.path.isdir(dir_of_curr_exec) == False):
+    mkdr_cmd = 'mkdir ' + dir_of_curr_exec
+    os.system(mkdr_cmd)    
+    
+  global neighbor_batch_filename 
+  neighbor_batch_filename = dir_of_curr_exec + '/' + neighbor_batch_filename
+  if (DEBUG_LEVEL > 2):
+    print 'neighbor_batch_filename: ', neighbor_batch_filename
+  global out_NJ_exec_filename
+  out_NJ_exec_filename = dir_of_curr_exec + '/' + out_NJ_exec_filename
+  if (DEBUG_LEVEL > 2):
+    print 'out_NJ_exec_filename: ', out_NJ_exec_filename
+  global out_NJ_exec_treename
+  out_NJ_exec_treename = dir_of_curr_exec + '/' + out_NJ_exec_treename
+  if (DEBUG_LEVEL > 2):
+    print 'out_NJ_exec_treename: ', out_NJ_exec_treename
+        
+  """ this is the excel file storing the results for this particular execution
+  that is, with only this set of particular parameters """
+  Min_LS_Score_Excel_FileName = dir_of_curr_exec + '/' + 'min_LS_score_individual_generations.xls'
+  Min_LS_Score_Excel_FilePtr = open(Min_LS_Score_Excel_FileName, 'w')
+  Min_LS_Score_Excel_File_header_str = 'generation \t Min LS score '
+  Min_LS_Score_Excel_FilePtr.write(Min_LS_Score_Excel_File_header_str)
+  
+  """ this is an excel file storing the LS scores for all the generations 
+  for all the population entries """
+  All_LS_Score_Excel_Filename = dir_of_curr_exec + '/' + 'All_LS_score_All_Population_All_generations.xls'
+  All_LS_Score_Excel_Fileptr = open(All_LS_Score_Excel_Filename, 'w')
+  All_LS_Score_Excel_File_header_str = 'generation \t Population entry \t LS score'
+  All_LS_Score_Excel_Fileptr.write(All_LS_Score_Excel_File_header_str)
+ 
+  # print input parameters
+  if (DEBUG_LEVEL > 0):
+    print '\n\n\n\n ****************** \n'
+    print 'POPULATION_SIZE: ', POPULATION_SIZE
+    print 'NO_OF_GENERATIONS: ', NO_OF_GENERATIONS
+    print 'SELECTION_SCHEME: ', SELECTION_SCHEME
+    print 'FRACTION_PREV_GENERATION_RETAIN: ', FRACTION_PREV_GENERATION_RETAIN
+    print 'ELITISM_COUNT: ', ELITISM_COUNT
+  
+  # read the input filename containing the distance matrix
+  InpDistMat, number_of_taxa = ParseDistanceMatFromFile(INPUT_FILENAME_DIST_MAT)  
+  
+  if (DEBUG_LEVEL > 0):
+    print '====>>>> Number of taxa of the current distance matrix: ', number_of_taxa
+  if (DEBUG_LEVEL > 1):
+    print 'List of taxon names: ', LIST_OF_TAXON_NAMES
+  
+  # write the input distance matrix in a filename
+  # the distance matrix is written as a lower triangular matrix
+  # reason to write a separate distance matrix is that, NJ method produces taxa set different from the input taxa set
+  NJ_Use_Dist_Mat_Filename = dir_of_inp_file + 'NJ_Use_Dist_Mat_File.txt'
+  if (os.path.isfile(NJ_Use_Dist_Mat_Filename) == False):
+    WriteDistMat(InpDistMat, number_of_taxa, NJ_Use_Dist_Mat_Filename)
+    
+  # create the batch file for NEIGHBOR execution
+  # this is for execution of NJ with input distance matrix
+  CreateNEIGHBORBatchFile(neighbor_batch_filename, NJ_Use_Dist_Mat_Filename)  
+  
+  # note the program beginning time 
+  start_timestamp_complete_program = time.time()
+  
+  """ obtain the tree from neighbor joining method, with input of distance matrix
+  the matrix is specified in INPUT_FILENAME_DIST_MAT 
+  alternatively, we may have input tree from which we have to generate the distance matrix -- check """ 
+  start_timestamp = time.time()
+  NJ_tree = NJ_Tree_Gen(neighbor_batch_filename, out_NJ_exec_filename, out_NJ_exec_treename)  
+  end_timestamp = time.time()
+  if (DEBUG_LEVEL > 0):
+    print '****** NJ tree formation time: ', (end_timestamp - start_timestamp)
+  
+  if (DEBUG_LEVEL > 2):
+    nj_tree_taxa_set = NJ_tree.infer_taxa()	# taxa set of the NJ tree
+    for i in range(len(nj_tree_taxa_set)):
+      print 'taxa count : ', i, 'name: ', nj_tree_taxa_set[i].label, 'idx: ', LIST_OF_TAXON_NAMES.index(nj_tree_taxa_set[i].label)    
+  
+  # now evaluate the LS error for this NJ tree
+  start_timestamp = time.time()
+  NJ_LS_val = EvaluateLS(InpDistMat, number_of_taxa, NJ_tree)
+  end_timestamp = time.time()
+  if (DEBUG_LEVEL > 0):
+    print '****** NJ tree LS score evaluation time: ', (end_timestamp - start_timestamp)
+  
+  if (DEBUG_LEVEL > 0):
+    print '***********************'
+    print ' NJ tree: LS score: ', NJ_LS_val
+    # write the LS score in the specified file
+    Min_LS_Score_Excel_FilePtr.write('\n'+str(-1)+'\t'+str(NJ_LS_val))
+    # write the tree in a dedicated file
+    LS_score_tree_filename = dir_of_curr_exec + '/' + 'Initial_NJ_Tree.tre'
+    LS_score_tree_fileptr = open(LS_score_tree_filename, 'w')
+    LS_score_tree_fileptr.write(NJ_tree.as_string("newick"))
+    LS_score_tree_fileptr.close()
+    
+  if (DEBUG_LEVEL > 2):
+    print 'NJ tree (newick): ', NJ_tree.as_string("newick")    
+    print 'corresponding tree (plot): ', NJ_tree.print_plot()
+  
+  """ this structure stores the population 
+  initialize with the default class instance """
+  Population_Treelist = []  
+    
+  if (DEBUG_LEVEL > 0):
+    print '***********  Creating initial population  ************'
+        
+  """ create initial population and store it in a list of strings
+  individual strings represent one tree (in newick format) of the population """
+  start_timestamp = time.time()
+  Create_Initial_Population(Population_Treelist, NJ_tree, InpDistMat, POPULATION_SIZE)
+  end_timestamp = time.time()
+  if (DEBUG_LEVEL > 0):
+    print '****** Initial population generation time: ', (end_timestamp - start_timestamp)
+  
+  # generate the LS scores for all trees within the current population
+  start_timestamp = time.time()
+  LS_score_list = Generate_LS_scores_Treelist(Population_Treelist, InpDistMat, number_of_taxa, POPULATION_SIZE)  
+  end_timestamp = time.time()
+  if (DEBUG_LEVEL > 0):
+    print '****** Initial population - LS score list - time: ', (end_timestamp - start_timestamp)
+  
+  if (DEBUG_LEVEL > 1):
+    print 'LS score list of the initial population: ', LS_score_list
+  
+  # find the minimum of the least square estimates
+  min_LS_sublist = min(LS_score_list, key=operator.itemgetter(1))
+  
+  if (DEBUG_LEVEL > 0):
+    print 'min LS score tree index: ', min_LS_sublist[0]
+    print 'min LS score: ', min_LS_sublist[1]
+    # write the min LS score in the specified file
+    Min_LS_Score_Excel_FilePtr.write('\n'+str(0)+'\t'+str(min_LS_sublist[1]))
+    # write all the LS scores in the dedicated excel file
+    for i in range(len(LS_score_list)):
+      All_LS_Score_Excel_Fileptr.write('\n'+str(0)+'\t'+str(LS_score_list[i][0])+'\t'+str(LS_score_list[i][1]))
+    # write the tree in a dedicated file
+    LS_score_tree_filename = dir_of_curr_exec + '/' + 'Gen_0_Best_LS_Score_Tree.tre'
+    LS_score_tree_fileptr = open(LS_score_tree_filename, 'w')
+    LS_score_tree_fileptr.write((Population_Treelist[min_LS_sublist[0]]._GetTree()).as_string("newick"))
+    LS_score_tree_fileptr.close()
+    """ write the overall population in a file
+    note: here we use a structure termed as pop_treelist
+    it is different from the Population_Treelist
+    it just only stores the trees obtained from the class instance of Population_Treelist 
+    used for writing the tree list in a output file """
+    Population_Treelist_Filename = dir_of_curr_exec + '/' + 'Gen_0_Population_Treelist.trl'
+    Population_Treelist_Fileptr = open(Population_Treelist_Filename, 'w')
+    pop_treelist = TreeList()
+    for i in range(len(Population_Treelist)):
+      pop_treelist.append(Population_Treelist[i]._GetTree())
+    pop_treelist.write(Population_Treelist_Fileptr, 'newick')
+    Population_Treelist_Fileptr.close()
+    del pop_treelist[:]
+  
+  if (DEBUG_LEVEL > 2):
+    print 'corresponding tree (newick): ', (Population_Treelist[min_LS_sublist[0]]._GetTree()).as_string("newick")
+    print 'corresponding tree (plot): ', (Population_Treelist[min_LS_sublist[0]]._GetTree()).print_plot()
+    
+  # next generation population (trees) in string form (newick)
+  Next_Gen_Population_Treelist = []  
+    
+  """ this loop generates individual generations where each generation will obtain better trees """
+  for no_of_iter in range(NO_OF_GENERATIONS):      
+    if (DEBUG_LEVEL > 0):
+      print '***********  Creating Generation : ', (no_of_iter + 1), '  ************'
+  
+    # form the population for the next generation
+    start_timestamp = time.time()
+    FormNextGenPopulation(Population_Treelist, Next_Gen_Population_Treelist, InpDistMat, number_of_taxa, LS_score_list, \
+			  POPULATION_SIZE, SELECTION_SCHEME, FRACTION_PREV_GENERATION_RETAIN, ELITISM_COUNT)
+    end_timestamp = time.time()
+    if (DEBUG_LEVEL > 0):
+      print ' generation creation time: ', (end_timestamp - start_timestamp)
+    if (DEBUG_LEVEL > 2):
+      print 'len curr gen population: ', len(Population_Treelist)
+      print 'len next gen population: ', len(Next_Gen_Population_Treelist)
+    
+    # delete the LS_score_list
+    del LS_score_list[:]
+
+    # generate the LS scores for all trees within the current population
+    start_timestamp = time.time()
+    LS_score_list = Generate_LS_scores_Treelist(Next_Gen_Population_Treelist, InpDistMat, number_of_taxa, POPULATION_SIZE)
+    end_timestamp = time.time()
+    if (DEBUG_LEVEL > 0):
+      print ' LS score evaluation time: ', (end_timestamp - start_timestamp)
+    
+    # find the minimum of the least square estimates
+    min_LS_sublist = min(LS_score_list, key=operator.itemgetter(1))
+    
+    if (DEBUG_LEVEL > 0):
+      print 'min LS score tree index: ', min_LS_sublist[0]
+      print 'min LS score: ', min_LS_sublist[1]
+      # write the min LS score in the specified file
+      Min_LS_Score_Excel_FilePtr.write('\n'+str((no_of_iter+1))+'\t'+str(min_LS_sublist[1]))
+      # write all the LS scores in the dedicated excel file
+      for i in range(len(LS_score_list)):
+	All_LS_Score_Excel_Fileptr.write('\n'+str((no_of_iter+1))+'\t'+str(LS_score_list[i][0])+'\t'+str(LS_score_list[i][1]))      
+      # write the tree in a dedicated file
+      LS_score_tree_filename = dir_of_curr_exec + '/' + 'Gen_' + str((no_of_iter+1)) + '_Best_LS_Score_Tree.tre'
+      LS_score_tree_fileptr = open(LS_score_tree_filename, 'w')
+      LS_score_tree_fileptr.write((Population_Treelist[min_LS_sublist[0]]._GetTree()).as_string("newick"))
+      LS_score_tree_fileptr.close()
+      """ write the overall population in a file
+      note: here we use a structure termed as pop_treelist
+      it is different from the Population_Treelist
+      it just only stores the trees obtained from the class instance of Population_Treelist 
+      used for writing the tree list in a output file """
+      Population_Treelist_Filename = dir_of_curr_exec + '/' + 'Gen_' + str((no_of_iter+1)) + '_Population_Treelist.trl'
+      Population_Treelist_Fileptr = open(Population_Treelist_Filename, 'w')
+      pop_treelist = TreeList()
+      for i in range(len(Next_Gen_Population_Treelist)):
+	pop_treelist.append(Next_Gen_Population_Treelist[i]._GetTree())
+      pop_treelist.write(Population_Treelist_Fileptr, 'newick')
+      Population_Treelist_Fileptr.close()
+      del pop_treelist[:]
+      
+    if (DEBUG_LEVEL > 2):
+      print 'corresponding tree (newick): ', (Next_Gen_Population_Treelist[min_LS_sublist[0]]._GetTree()).as_string("newick")
+      print 'corresponding tree (plot): ', (Next_Gen_Population_Treelist[min_LS_sublist[0]]._GetTree()).print_plot()
+
+    """ now we have to swap the pointers 
+    we first delete the individual elements of old generation
+    we create a list copy of the new generation
+    then we delete the other instance of new generation list 
+    so that it can be freed and point to the subsequent generations """
+    del Population_Treelist[:]
+    Population_Treelist = list(Next_Gen_Population_Treelist)	# copy of the next generation
+    del Next_Gen_Population_Treelist[:]
+    Next_Gen_Population_Treelist = []
+
+  # close the min LS score containing excel file
+  Min_LS_Score_Excel_FilePtr.close()
+  
+  # close the all LS score containing excel file
+  All_LS_Score_Excel_Fileptr.close()
+
+  # note the program ending time 
+  end_timestamp_complete_program = time.time()
+  
+  # delete the memory used for all computation
+  numpy.delete(InpDistMat, numpy.s_[::2])
+  del Population_Treelist[:]
+  del Next_Gen_Population_Treelist[:]
+  
+  
+  if (DEBUG_LEVEL > 0):
+    print '\n ********* Total time taken by the complete program : ', (end_timestamp_complete_program - start_timestamp_complete_program)
+  
+##-----------------------------------------------------
+
+if __name__ == "__main__":
+    main() 

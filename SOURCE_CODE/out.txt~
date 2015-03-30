@@ -1,0 +1,207 @@
+
+
+
+
+ ****************** 
+
+POPULATION_SIZE:  100
+NO_OF_GENERATIONS:  50
+SELECTION_SCHEME:  0
+FRACTION_PREV_GENERATION_RETAIN:  0.5
+ELITISM_COUNT:  1
+first init: DistMat shape:  (87616,)
+====>>>> Number of taxa of the current distance matrix:  296
+****** NJ tree formation time:  0.154068946838
+****** NJ tree LS score evaluation time:  0.247727870941
+***********************
+ NJ tree: LS score:  2.96297083589
+***********  Creating initial population  ************
+NJ tree in pop idx:  0
+Mutation of NJ tree in pop idx:  9
+Mutation --- length inp_tree_taxa_set:  296
+SPR is selected
+before SPR: length of input tree edge set:  590
+target node:  d60786768
+description;  Node object at 0x39f8850 (d60786768)
+    [Edge]
+        Edge object at 0x39f88d0 (d60786896, Length=0.00332)
+    [Taxon]
+         Taxon object at 0x1abea90 (d28043920): 'JN683630'
+    [Parent]
+        Node object at 0x39f8510 (d60785936)
+    [Clade Mask]
+        22300745198530623141535718272648361505980416
+    [Children]
+        None
+its branch length:  0.00332
+after pruning: len of inp tree taxa set:  295
+len of new subtree taxa set:  1
+within SPR: after pruning --- length of input tree edge set:  588
+target edge:  Edge object at 0x3a01710 (d60823312, Length=0.00207)
+    [Length]
+        0.00207
+    [Tail Node]
+        Node object at 0x3a01590 (d60822928)
+    [Head Node]
+        Node object at 0x3a01690 (d60823184)
+    [Clade Mask]
+        2993155353253689176481146537402947624255349848014848
+parent node of the edge (where the subtree will be inserted) :  d60822928
+child node of the edge (where the subtree will be inserted) :  d60823184
+Mutation of NJ tree in pop idx:  19
+Mutation --- length inp_tree_taxa_set:  296
+SPR is selected
+before SPR: length of input tree edge set:  590
+target node:  d52867280
+description;  Node object at 0x326b0d0 (d52867280)
+    [Edge]
+        Edge object at 0x326b150 (d52867408, Length=0.00091)
+    [Taxon]
+         Taxon object at 0x1af34d0 (d28259536): 'JN409397'
+    [Parent]
+        Node object at 0x3267f90 (d52854672)
+    [Clade Mask]
+        3978585891278293137243057985174566720803649206378781739523711815145275976100267004264448
+    [Children]
+        None
+its branch length:  0.00091
+after pruning: len of inp tree taxa set:  295
+len of new subtree taxa set:  1
+within SPR: after pruning --- length of input tree edge set:  588
+target edge:  Edge object at 0x4482710 (d71837456, Length=0.01949)
+    [Length]
+        0.01949
+    [Tail Node]
+        Node object at 0x448ad50 (d71871824)
+    [Head Node]
+        Node object at 0x4470190 (d71762320)
+    [Clade Mask]
+        10889035741470030830827987437816582766592
+parent node of the edge (where the subtree will be inserted) :  d71871824
+child node of the edge (where the subtree will be inserted) :  d71762320
+Mutation of NJ tree in pop idx:  29
+Mutation --- length inp_tree_taxa_set:  296
+SPR is selected
+before SPR: length of input tree edge set:  590
+target node:  d103245776
+description;  Node object at 0x62767d0 (d103245776)
+    [Edge]
+        Edge object at 0x6276850 (d103245904, Length=0.00054)
+    [Taxon]
+        None
+    [Parent]
+        Node object at 0x62766d0 (d103245520)
+    [Clade Mask]
+        50549900000907449615000653288161807513069645792263573402069269217280
+    [Children]
+        [0] Node object at 0x62768d0 (d103246032)
+        [1] Node object at 0x6276990 (d103246224)
+its branch length:  0.00054
+after pruning: len of inp tree taxa set:  292
+len of new subtree taxa set:  4
+within SPR: after pruning --- length of input tree edge set:  582
+target edge:  Edge object at 0x6298490 (d103384208, Length=0.00142)
+    [Length]
+        0.00142
+    [Tail Node]
+        Node object at 0x6298250 (d103383632)
+    [Head Node]
+        Node object at 0x6298410 (d103384080)
+    [Clade Mask]
+        34359738368
+parent node of the edge (where the subtree will be inserted) :  d103383632
+child node of the edge (where the subtree will be inserted) :  d103384080
+Mutation of NJ tree in pop idx:  39
+Mutation --- length inp_tree_taxa_set:  296
+NNI is selected
+random index of node1 child list:  1
+random index of node2 child list:  1
+node1_child_to_be_swapped:  d114575888
+node2_child_to_be_swapped;  d45872464
+Mutation of NJ tree in pop idx:  49
+Mutation --- length inp_tree_taxa_set:  296
+NNI is selected
+random index of node1 child list:  0
+random index of node2 child list:  1
+node2 child -- leaf -- label:  JN683641
+node1_child_to_be_swapped:  d143518864
+node2_child_to_be_swapped;  d143519056
+Mutation of NJ tree in pop idx:  59
+Mutation --- length inp_tree_taxa_set:  296
+swapping taxa is selected
+random selected indices:  78 42
+nodes selected for swapping:  CY092278 CY092291
+Mutation of NJ tree in pop idx:  69
+Mutation --- length inp_tree_taxa_set:  296
+swapping taxa is selected
+random selected indices:  48 53
+nodes selected for swapping:  JQ070783 JN940424
+Mutation of NJ tree in pop idx:  79
+Mutation --- length inp_tree_taxa_set:  296
+swapping taxa is selected
+random selected indices:  122 176
+nodes selected for swapping:  JQ914805 JN652407
+Mutation of NJ tree in pop idx:  89
+Mutation --- length inp_tree_taxa_set:  296
+SPR is selected
+before SPR: length of input tree edge set:  590
+target node:  d213478480
+description;  Node object at 0xcb96c50 (d213478480)
+    [Edge]
+        Edge object at 0xcb96cd0 (d213478608, Length=0.00192)
+    [Taxon]
+        None
+    [Parent]
+        Node object at 0xcb91f10 (d213458704)
+    [Clade Mask]
+        62165167409024572245854553544975307219721735352739869448182844302512888920477169352704
+    [Children]
+        [0] Node object at 0xcb96d50 (d213478736)
+        [1] Node object at 0xcb96e10 (d213478928)
+its branch length:  0.00192
+after pruning: len of inp tree taxa set:  278
+len of new subtree taxa set:  18
+within SPR: after pruning --- length of input tree edge set:  554
+target edge:  Edge object at 0xcb9edd0 (d213511632, Length=0.00381)
+    [Length]
+        0.00381
+    [Tail Node]
+        Node object at 0xc40a450 (d205562960)
+    [Head Node]
+        Node object at 0xcb9ed50 (d213511504)
+    [Clade Mask]
+        37662610412320084583014736539245998496614132666784207077376
+parent node of the edge (where the subtree will be inserted) :  d205562960
+child node of the edge (where the subtree will be inserted) :  d213511504
+Mutation of NJ tree in pop idx:  99
+Mutation --- length inp_tree_taxa_set:  296
+SPR is selected
+before SPR: length of input tree edge set:  590
+target node:  d240010960
+description;  Node object at 0xe4e46d0 (d240010960)
+    [Edge]
+        Edge object at 0xe4e4590 (d240010640, Length=0.0)
+    [Taxon]
+         Taxon object at 0x1ac7350 (d28078928): 'JQ290180'
+    [Parent]
+        Node object at 0xe4e4950 (d240011600)
+    [Clade Mask]
+        2923003274661805836407369665432566039311865085952
+    [Children]
+        None
+its branch length:  0.0
+after pruning: len of inp tree taxa set:  295
+len of new subtree taxa set:  1
+within SPR: after pruning --- length of input tree edge set:  588
+target edge:  Edge object at 0xe50a110 (d240165136, Length=0.01655)
+    [Length]
+        0.01655
+    [Tail Node]
+        Node object at 0xe50a0d0 (d240165072)
+    [Head Node]
+        Node object at 0xe50a190 (d240165264)
+    [Clade Mask]
+        1048320
+parent node of the edge (where the subtree will be inserted) :  d240165072
+child node of the edge (where the subtree will be inserted) :  d240165264
+****** Initial population generation time:  8.626101017
